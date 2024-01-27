@@ -368,20 +368,50 @@ map = (function () {
   function go() {
     stopped = false;
   }
-  
+
+  //NEWCODE
   async function renderView() {
-    // account for retina screens etc
-    let zoomFactor = zoomRender * window.devicePixelRatio;
-    const originalX = scene.canvas.width;
-    const originalY = scene.canvas.height;
-    const outputX = originalX * zoomRender;
-    const outputY = originalY * zoomRender;
-    const size_mb = Math.ceil(scene.canvas.width * scene.canvas.height * zoomFactor * mb_factor);
-    const status = confirm(`Potential image size with ${zoomRender}x zoom render: ${size_mb} MB\nEstimated dimensions: ${outputX}X${outputY} pixels.\nAn Alert will display when the render is complete.\nThis will take some time, continue?`);
-    
-    if(!status) {
-      return;
+  // ... (existing code)
+
+  // Size limit for each canvas
+  const maxCanvasSize = 16384;
+
+  // Calculate the number of rows and columns needed
+  const rows = Math.ceil(outputY / maxCanvasSize);
+  const cols = Math.ceil(outputX / maxCanvasSize);
+
+  // Split the image into multiple canvases
+  const captures = [];
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const startX = col * maxCanvasSize;
+      const startY = row * maxCanvasSize;
+      const endX = Math.min(startX + maxCanvasSize, outputX);
+      const endY = Math.min(startY + maxCanvasSize, outputY);
+
+      // Capture the portion of the canvas
+      const capturedCell = await captureCanvasPortion(renderContext, startX, startY, endX, endY);
+      captures.push(capturedCell);
+
+      console.log(`Cell (${row + 1}, ${col + 1}) rendered`);
     }
+  }
+
+  // ... (rest of the code)
+}
+
+async function captureCanvasPortion(ctx, startX, startY, endX, endY) {
+  const portionCanvas = document.createElement('canvas');
+  portionCanvas.width = endX - startX;
+  portionCanvas.height = endY - startY;
+
+  const portionContext = portionCanvas.getContext("2d");
+  portionContext.drawImage(renderCanvas, startX, startY, portionCanvas.width, portionCanvas.height, 0, 0, portionCanvas.width, portionCanvas.height);
+
+  const portionBlob = await getCanvasBlob(portionCanvas);
+  return portionBlob.url;
+}
+//NEWCODE
     
     // Pre-redraw to make sure view is set:
     map.invalidateSize(true);
