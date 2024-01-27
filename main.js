@@ -25,7 +25,7 @@ map = (function () {
   const mb_factor = 1.0 / (1024 * 1024);
   var zoomRender = 2;
   const min_zoomRender = 1;
-  const max_zoomRender = 16; // if you need more, fork this repo and use your own api key!
+  const max_zoomRender = 16; // if you need more, fork this repo and use your own api key! (modifieds from 8 to 16)
   
   var renderName = {name: 'render'};
   
@@ -209,8 +209,8 @@ map = (function () {
     var maxadj = (max / 255) * range + gui.u_min;
     
     // keep levels in range
-    minadj = Math.max(minadj, -11000);
-    maxadj = Math.min(maxadj, 8900);
+    minadj = Math.max(minadj, -11000); // LowestLevelRange on Earth
+    maxadj = Math.min(maxadj, 8900); // HighestLevelRange on Earth
     // only let the minimum value go below 0 if ocean data is included
     minadj = gui.include_oceans ? minadj : Math.max(minadj, 0);
     
