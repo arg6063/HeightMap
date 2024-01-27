@@ -368,58 +368,20 @@ map = (function () {
   function go() {
     stopped = false;
   }
-  // NewCode
+  
   async function renderView() {
-  const zoomFactor = 2; // You can adjust this value for your desired zoom level.
-  const gridSize = 4; // Assuming you want a 4x4 grid (16 tiles)
-
-  // Pre-redraw to make sure view is set:
-  map.invalidateSize(true);
-
-  // Store original bounds to return post render.
-  const originalBounds = map.getBounds();
-
-  // Turn off auto-exposure:
-  const preRenderAutoExposureState = gui.autoexpose;
-  gui.autoexpose = false;
-
-  // Calculate dimensions for each cell
-  const cellWidth = scene.canvas.width / gridSize;
-  const cellHeight = scene.canvas.height / gridSize;
-
-  // Render each cell in the grid
-  for (let row = 0; row < gridSize; row++) {
-    for (let col = 0; col < gridSize; col++) {
-      const cellBounds = L.latLngBounds(
-        map.containerPointToLatLng(L.point(col * cellWidth, row * cellHeight)),
-        map.containerPointToLatLng(L.point((col + 1) * cellWidth, (row + 1) * cellHeight))
-      );
-
-      // wait for Leaflet moveend + zoomend events
-      await async function () {
-        return new Promise((resolve) => {
-          map.once('moveend zoomend', resolve);
-          map.fitBounds(cellBounds);
-        });
-      }();
-
-      // Wait for the view to complete
-      await awaitViewComplete();
-
-      // Capture screenshot for the current cell
-      const renderedCell = await scene.screenshot();
-      saveAs(renderedCell.blob, `render-cell-${row * gridSize + col}.png`);
+    // account for retina screens etc
+    let zoomFactor = zoomRender * window.devicePixelRatio;
+    const originalX = scene.canvas.width;
+    const originalY = scene.canvas.height;
+    const outputX = originalX * zoomRender;
+    const outputY = originalY * zoomRender;
+    const size_mb = Math.ceil(scene.canvas.width * scene.canvas.height * zoomFactor * mb_factor);
+    const status = confirm(`Potential image size with ${zoomRender}x zoom render: ${size_mb} MB\nEstimated dimensions: ${outputX}X${outputY} pixels.\nAn Alert will display when the render is complete.\nThis will take some time, continue?`);
+    
+    if(!status) {
+      return;
     }
-  }
-
-  // Restore original bounds
-  map.fitBounds(originalBounds);
-
-  // Clean up:
-  gui.autoexpose = preRenderAutoExposureState;
-  alert('Render complete!');
-}
-// NewCode
     
     // Pre-redraw to make sure view is set:
     map.invalidateSize(true);
