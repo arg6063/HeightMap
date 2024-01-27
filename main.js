@@ -378,62 +378,10 @@ map = (function () {
     const outputY = originalY * zoomRender;
     const size_mb = Math.ceil(scene.canvas.width * scene.canvas.height * zoomFactor * mb_factor);
     const status = confirm(`Potential image size with ${zoomRender}x zoom render: ${size_mb} MB\nEstimated dimensions: ${outputX}X${outputY} pixels.\nAn Alert will display when the render is complete.\nThis will take some time, continue?`);
-
-      // Size limit for each canvas
-  const maxCanvasSize = 16384;
-
-  // Calculate the number of rows and columns needed
-  const rows = Math.ceil(outputY / maxCanvasSize);
-  const cols = Math.ceil(outputX / maxCanvasSize);
-
-  // Split the image into multiple canvases
-  const captures = [];
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      const startX = col * maxCanvasSize;
-      const startY = row * maxCanvasSize;
-      const endX = Math.min(startX + maxCanvasSize, outputX);
-      const endY = Math.min(startY + maxCanvasSize, outputY);
-
-      // Capture the portion of the canvas
-      const capturedCell = await captureCanvasPortion(renderContext, startX, startY, endX, endY);
-      captures.push(capturedCell);
-
-      console.log(`Cell (${row + 1}, ${col + 1}) rendered`);
-    }
-  }
-
-  // Save each captured portion as a separate image
-  for (let i = 0; i < captures.length; i++) {
-    const blob = await getBlobFromDataURL(captures[i]);
-    saveAs(blob, `${renderName.name ?? 'render'}_${i + 1}.png`);
-  }
     
     if(!status) {
       return;
     }
-
-    async function captureCanvasPortion(ctx, startX, startY, endX, endY) {
-  const portionCanvas = document.createElement('canvas');
-  portionCanvas.width = endX - startX;
-  portionCanvas.height = endY - startY;
-
-  const portionContext = portionCanvas.getContext("2d");
-  portionContext.drawImage(renderCanvas, startX, startY, portionCanvas.width, portionCanvas.height, 0, 0, portionCanvas.width, portionCanvas.height);
-
-  const portionDataURL = portionCanvas.toDataURL("image/png");
-  return portionDataURL;
-}
-
-function getBlobFromDataURL(dataURL) {
-  const byteString = atob(dataURL.split(',')[1]);
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
-  }
-  return new Blob([ab], { type: 'image/png' });
-}
     
     // Pre-redraw to make sure view is set:
     map.invalidateSize(true);
