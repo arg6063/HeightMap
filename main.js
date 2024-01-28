@@ -25,7 +25,7 @@ map = (function () {
   const mb_factor = 1.0 / (1024 * 1024);
   var zoomRender = 2;
   const min_zoomRender = 1;
-  const max_zoomRender = 16; // if you need more, fork this repo and use your own api key! (modifieds from 8 to 16)
+  const max_zoomRender = 8; // if you need more, fork this repo and use your own api key!
   
   var renderName = {name: 'render'};
   
@@ -205,12 +205,12 @@ map = (function () {
     // calculate adjusted elevation settings based on current pixel
     // values and elevation settings
     var range = (gui.u_max - gui.u_min);
-    var minadj = min * range + gui.u_min;
-    var maxadj = max * range + gui.u_min;
+    var minadj = (min / 255) * range + gui.u_min;
+    var maxadj = (max / 255) * range + gui.u_min;
     
     // keep levels in range
-    minadj = Math.max(minadj, -11000); // LowestLevelRange on Earth
-    maxadj = Math.min(maxadj, 8900); // HighestLevelRange on Earth
+    minadj = Math.max(minadj, -11000);
+    maxadj = Math.min(maxadj, 8900);
     // only let the minimum value go below 0 if ocean data is included
     minadj = gui.include_oceans ? minadj : Math.max(minadj, 0);
     
