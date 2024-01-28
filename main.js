@@ -205,8 +205,8 @@ map = (function () {
     // calculate adjusted elevation settings based on current pixel
     // values and elevation settings
     var range = (gui.u_max - gui.u_min);
-    var minadj = (min / 255) * range + gui.u_min;
-    var maxadj = (max / 255) * range + gui.u_min;
+    var minadj = min * range + gui.u_min;
+    var maxadj = max * range + gui.u_min;
     
     // keep levels in range
     minadj = Math.max(minadj, -11000); // LowestLevelRange on Earth
