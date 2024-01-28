@@ -28,6 +28,11 @@ map = (function () {
   const max_zoomRender = 100; // if you need more, fork this repo and use your own api key!
   
   var renderName = {name: 'render'};
+
+  //NEWCODE
+  // Move this declaration to a higher scope, outside of any function
+  var originalBounds;
+  //NEWCODE
   
   /*** URL parsing ***/
   
@@ -371,6 +376,9 @@ map = (function () {
 
 //NEWCODE  
 async function renderView() {
+  // Store original bounds to return post render.
+  originalBounds = map.getBounds();
+  
   // account for retina screens etc
   let zoomFactor = zoomRender * window.devicePixelRatio;
   const size_mb = Math.ceil(scene.canvas.width * scene.canvas.height * zoomFactor * mb_factor);
@@ -442,6 +450,14 @@ async function renderView() {
   // Zoom out to the original view
   map.fitBounds(originalBounds);
 }
+
+//NEWCODE
+  function stop() {
+    console.log('stopping')
+    stopped = true;
+    console.log('stopping:', stopped);
+    map.fitBounds(originalBounds); // Zoom out to original bounds when stopping
+  }
 //NEWCODE
   
   function waitForSeconds(seconds) {
