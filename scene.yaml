@@ -23,8 +23,10 @@ styles:
             blocks:
                 global: |
                     float unpack(vec4 h) {
-                        // Unpack data to the full 16-bit range (modified code for 16bit output image check "scene.yaml backup.txt" for original code)
-                        return h.r * 256. + h.g + h.b / 256.;
+                        // unpack data to range [-32768, 32768], the range in the raw data
+                        // "* 255." is necessary because each the GPU reads each channel as a range from 0 - 1
+                        // and we want it in a range from 0-255, as it was encoded in the raster image
+                        return (h.r * 256. + h.g + h.b / 256.) * 255. - 32768.;
                     }
                 color: |
                     // unpack color and remove offset
