@@ -438,6 +438,9 @@ async function renderView() {
   logRenderStep("Cleaning up");
   gui.autoexpose = preRenderAutoExposureState;
   alert("Render complete!");
+
+  // Zoom out to the original view
+  map.fitBounds(originalBounds);
 }
 //NEWCODE
   
