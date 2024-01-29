@@ -459,14 +459,6 @@ async function renderView() {
     map.fitBounds(originalBounds); // Zoom out to original bounds when stopping
   }
 //NEWCODE
-  // Create a square bounding box
-var boundingBox = L.rectangle(originalBounds, {color: "blue", weight: 2}).addTo(map);
-
-// Update the bounding box when the map view changes
-map.on('move', function () {
-  boundingBox.setBounds(map.getBounds());
-});
-//NEWCODE
   
   function waitForSeconds(seconds) {
     return new Promise((resolve, reject) => {
