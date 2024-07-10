@@ -337,7 +337,7 @@ map = (function () {
     gui.add(gui, 'export');
     
     gui.zoomRender = zoomRender;
-    gui.add(gui, 'zoomRender', min_zoomRender, max_zoomRender, 1).name("Render Multiplier").onChange(function(value) {
+    gui.add(gui, 'zoomRender', min_zoomRender, max_zoomRender, 1).name("Render Multiplier2").onChange(function(value) {
       zoomRender = Math.round(value);
     });
 
