@@ -341,12 +341,6 @@ map = (function () {
       zoomRender = Math.round(value);
     });
 
-    // Add this code inside the addGUI function to add the input text box for start cell
-    gui.startCell = startCell;
-    gui.add(gui, 'startCell', 0, cells.length - 1).name("Start Cell").onChange(function(value) {
-      startCell = value;
-    });
-    
     gui.renderName = renderName.name;
     let rendernameInput = gui.add(gui, 'renderName').name('Render Name').onChange(function(value) {
       renderName.name = value;
@@ -359,8 +353,6 @@ map = (function () {
     
     gui.add(gui, 'render');
     
-    
-    
     gui.help = function () {
       // show help screen and input blocker
       toggleHelp(true);
@@ -368,7 +360,12 @@ map = (function () {
     gui.add(gui, 'help');
     // set scale factor text field to be uneditable but still selectable (for copying)
     gui.__controllers[2].domElement.firstChild.setAttribute("readonly", true);
-    
+
+    // Add this code inside the addGUI function to add the input text box for start cell
+    gui.startCell = startCell;
+    gui.add(gui, 'startCell', 0, cells.length - 1).name("Start Cell").onChange(function(value) {
+      startCell = value;
+    });
   }
   function stop() {
     console.log('stopping')
