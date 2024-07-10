@@ -375,7 +375,7 @@ map = (function () {
   }
 
 //NEWCODE  
-async function renderView() {
+async function renderView(startCell = 0) {
   // Store original bounds to return post render.
   originalBounds = map.getBounds();
   
@@ -419,9 +419,10 @@ async function renderView() {
 
   logRenderStep("Rendering cells");
 
-  // Render each cell:
-  let count = 0;
-  for (const bounds of cells) {
+  // Render each cell starting from the specified startCell:
+  let count = startCell;
+  for (let i = startCell; i < cells.length; i++) {
+    const bounds = cells[i];
     // wait for Leaflet moveend + zoomend events
     await async function () {
       return new Promise(resolve => {
