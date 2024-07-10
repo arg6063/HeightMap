@@ -343,7 +343,6 @@ map = (function () {
     gui.startCell = startCell;
     gui.add(gui, 'startCell', 0, cells.length - 1).name("Start Cell").onChange(function(value) {
     startCell = value;
-    });
       
     });
     
