@@ -31,6 +31,7 @@ map = (function () {
 
   //NEWCODE
   // Move this declaration to a higher scope, outside of any function
+  var startCell = 0;
   var originalBounds;
   //NEWCODE
   
@@ -338,6 +339,11 @@ map = (function () {
     gui.zoomRender = zoomRender;
     gui.add(gui, 'zoomRender', min_zoomRender, max_zoomRender, 1).name("Render Multiplier").onChange(function(value) {
       zoomRender = Math.round(value);
+    // Add this code inside the addGUI function to add the input text box for start cell
+    gui.startCell = startCell;
+    gui.add(gui, 'startCell', 0, cells.length - 1).name("Start Cell").onChange(function(value) {
+    startCell = value;
+    });
       
     });
     
@@ -375,7 +381,8 @@ map = (function () {
   }
 
 //NEWCODE  
-async function renderView(startCell = 23) {
+// Update the renderView function to start rendering from the specified cell
+async function renderView() {
   // Store original bounds to return post render.
   originalBounds = map.getBounds();
   
