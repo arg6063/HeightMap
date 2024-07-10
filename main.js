@@ -363,7 +363,7 @@ map = (function () {
 
     // Add this code inside the addGUI function to add the input text box for start cell
     gui.startCell = startCell;
-    gui.add(gui, 'startCell', 0, cells.length - 1).name("Start Cell").onChange(function(value) {
+    gui.add(gui, 'startCell').name("Start Cell").onChange(function(value) {
       startCell = value;
     });
   }
