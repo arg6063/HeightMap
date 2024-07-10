@@ -438,7 +438,7 @@ async function renderView() {
       count++;
 
       // Introduce a 10-second break
-      await waitForSeconds(10);
+      await waitForSeconds(5);
     });
   }
 
