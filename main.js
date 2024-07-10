@@ -335,16 +335,15 @@ map = (function () {
       });
     }
     gui.add(gui, 'export');
+    
+    gui.zoomRender = zoomRender;
+    gui.add(gui, 'zoomRender', min_zoomRender, max_zoomRender, 1).name("Render Multiplier").onChange(function(value) {
+      zoomRender = Math.round(value);
 
     // Add this code inside the addGUI function to add the input text box for start cell
     gui.startCell = startCell;
     gui.add(gui, 'startCell', 0, cells.length - 1).name("Start Cell").onChange(function(value) {
       startCell = value;
-    });
-    
-    gui.zoomRender = zoomRender;
-    gui.add(gui, 'zoomRender', min_zoomRender, max_zoomRender, 1).name("Render Multiplier").onChange(function(value) {
-      zoomRender = Math.round(value);
     });
     
     gui.renderName = renderName.name;
