@@ -375,7 +375,7 @@ map = (function () {
   }
 
 //NEWCODE  
-async function renderView(startCell = 0) {
+async function renderView(startCell = 23) {
   // Store original bounds to return post render.
   originalBounds = map.getBounds();
   
