@@ -439,7 +439,7 @@ async function renderView(startCell = 23) {
       count++;
 
       // Introduce a 10-second break
-      await waitForSeconds(5);
+      await waitForSeconds(10);
     });
   }
 
