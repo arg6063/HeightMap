@@ -23,7 +23,7 @@ map = (function () {
   // Renderer:
   // byte to mb factor:
   const mb_factor = 1.0 / (1024 * 1024);
-  var zoomRender = 1;
+  var zoomRender = 2;
   const min_zoomRender = 1;
   const max_zoomRender = 100; // if you need more, fork this repo and use your own api key!
   
@@ -385,7 +385,7 @@ async function renderView() {
   originalBounds = map.getBounds();
   
   // account for retina screens etc
-  let zoomFactor = 2 * window.devicePixelRatio; // Update zoomFactor for 4096x4096px tiles
+  let zoomFactor = zoomRender * window.devicePixelRatio;
   const size_mb = Math.ceil(scene.canvas.width * scene.canvas.height * zoomFactor * mb_factor);
   const status = confirm(`Potential image size with ${zoomRender}x zoom render: ${size_mb} MB\nAn Alert will display when the render is complete.\nThis will take some time, continue?`);
 
