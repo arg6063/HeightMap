@@ -11,12 +11,7 @@ sources:
         max_zoom: 16
         url_params:
             api_key: w3VhyDV4SsaAnkafyCYOCg
-            
-    google_maps:
-    type: Raster
-    url: "https://maps.googleapis.com/maps/api/staticmap?center=0.0,0.0&zoom=2&maptype=roadmap&key=AIzaSyApiAENSFznjVVq5eD5DxOhBlwI4uvNddo"
-    tile_size: 256
-    
+                    
 styles:
     hillshade:
         base: raster
