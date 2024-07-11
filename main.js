@@ -23,9 +23,9 @@ map = (function () {
   // Renderer:
   // byte to mb factor:
   const mb_factor = 1.0 / (1024 * 1024);
-  var zoomRender = 2;
+  var zoomRender = 1;
   const min_zoomRender = 1;
-  const max_zoomRender = 100; // Tiles 100x100 if you need more, fork this repo and use your own api key!
+  const max_zoomRender = 100; // if you need more, fork this repo and use your own api key!
   
   var renderName = {name: 'render'};
 
@@ -337,16 +337,16 @@ map = (function () {
     gui.add(gui, 'export');
     
     gui.zoomRender = zoomRender;
-    gui.add(gui, 'zoomRender', min_zoomRender, max_zoomRender, 1).name("Render Multiplier").onChange(function(value) {
+    gui.add(gui, 'zoomRender', min_zoomRender, max_zoomRender, 1).name("Render Multiplier2").onChange(function(value) {
       zoomRender = Math.round(value);
     });
 
-    //NEW CODE Add this code inside the addGUI function to add the input text box for start cell
+    // Add this code inside the addGUI function to add the input text box for start cell
     gui.startCell = startCell;
     gui.add(gui, 'startCell').name("Start Cell").onChange(function(value) {
       startCell = value;
     });
-    
+
     gui.renderName = renderName.name;
     let rendernameInput = gui.add(gui, 'renderName').name('Render Name').onChange(function(value) {
       renderName.name = value;
@@ -359,8 +359,6 @@ map = (function () {
     
     gui.add(gui, 'render');
     
-    
-    
     gui.help = function () {
       // show help screen and input blocker
       toggleHelp(true);
@@ -368,7 +366,7 @@ map = (function () {
     gui.add(gui, 'help');
     // set scale factor text field to be uneditable but still selectable (for copying)
     gui.__controllers[2].domElement.firstChild.setAttribute("readonly", true);
-    
+
   }
   function stop() {
     console.log('stopping')
@@ -379,105 +377,94 @@ map = (function () {
   function go() {
     stopped = false;
   }
+
+//NEWCODE  
+// Update the renderView function to start rendering from the specified cell
+async function renderView() {
+  // Store original bounds to return post render.
+  originalBounds = map.getBounds();
   
-  async function renderView() {
-    // account for retina screens etc
-    let zoomFactor = zoomRender * window.devicePixelRatio;
-    const originalX = scene.canvas.width;
-    const originalY = scene.canvas.height;
-    const outputX = originalX * zoomRender;
-    const outputY = originalY * zoomRender;
-    const size_mb = Math.ceil(scene.canvas.width * scene.canvas.height * zoomFactor * mb_factor);
-    const status = confirm(`Potential image size with ${zoomRender}x zoom render: ${size_mb} MB\nEstimated dimensions: ${outputX}X${outputY} pixels.\nAn Alert will display when the render is complete.\nThis will take some time, continue?`);
-    
-    if(!status) {
-      return;
-    }
-    
-    // Pre-redraw to make sure view is set:
-    map.invalidateSize(true);
-    
-    // TODO: lock interaction.
-    
-    logRenderStep("Preparing render");
-    
-    // Store original bounds to return post render.
-    const originalBounds = map.getBounds();
-    
-    // Turn off auto-exposure:
-    const preRenderAutoExposureState = gui.autoexpose;
-    gui.autoexpose = false;
-    const widthPerCell = scene.canvas.width / zoomFactor;
-    const heightPerCell = scene.canvas.height / zoomFactor;
-    const captures = [];
-    const captureOrigins = [];
-    // Cache all the bounding box points before moving the map for each render.
-    const cells = [];
-    for(let i = 0; i < zoomRender; i++) {
-      for(let j = 0; j < zoomRender; j++) {
-        // Get a bounding box of the Points using northwest and southeast:
-        const nwPoint = L.point(i * widthPerCell, j * heightPerCell, false);
-        const sePoint = L.point(nwPoint.x + widthPerCell, nwPoint.y + heightPerCell, false);
-        // Use the map container and not layer PointToLatLng for the most current position.
-        const topLeftCoords = map.containerPointToLatLng(nwPoint);
-        const bottomRightCoords = map.containerPointToLatLng(sePoint);
-        // Coordinate bounding box of where we want to be:
-        const bounds = L.latLngBounds(topLeftCoords, bottomRightCoords);
-        // Cache the origin point of the cell for later (rounding errrors);
-        captureOrigins.push(nwPoint);
-        cells.push(bounds);
-      }
-    }
-    
-    logRenderStep("Rendering cells");
-    
-    // Render each cell:
-    let count = 0;
-    for(const bounds of cells) {
-      // wait for Leaflet moveend + zoomend events
-      await async function() {
-        return new Promise(resolve => {
-          map.once('moveend zoomend', resolve);
-          map.fitBounds(bounds);
-        });
-      }();
-      await awaitViewComplete().then(async () => {
-        // Cache the screenshot
-        const renderedCell = await scene.screenshot();
-        captures[count] = renderedCell.url;
-        // saveAs(renderedCell.blob, `render-cell-${count}.png`);
-        console.log(`Cell ${count} rendered`);
-        count++
-      });
-    }
+  // account for retina screens etc
+  let zoomFactor = 2 * window.devicePixelRatio; // Update zoomFactor for 4096x4096px tiles
+  const size_mb = Math.ceil(scene.canvas.width * scene.canvas.height * zoomFactor * mb_factor);
+  const status = confirm(`Potential image size with ${zoomRender}x zoom render: ${size_mb} MB\nAn Alert will display when the render is complete.\nThis will take some time, continue?`);
 
-    map.fitBounds(originalBounds);
-
-    logRenderStep("Building final image");
-    
-    // Stitch the image together
-    const renderCanvas = document.createElement('canvas');
-    renderCanvas.id = "renderCanvas";
-    renderCanvas.width = outputX;
-    renderCanvas.height = outputY;
-    const renderContext = renderCanvas.getContext("2d");
-    
-    for(let i = 0; i < captures.length; i++) {
-      const xPixel = captureOrigins[i].x * zoomFactor;
-      const yPixel = captureOrigins[i].y * zoomFactor;
-      await addImageToCanvas(renderContext, captures[i], xPixel, yPixel);
-      console.log("added image to canvas");
-    }
-    
-    logRenderStep("Saving render");
-    const blob = await getCanvasBlob(renderCanvas);
-    saveAs(blob, `${renderName.name ?? 'render'}.png`);
-    
-    // Clean up:
-    logRenderStep("Cleaning up");
-    gui.autoexpose = preRenderAutoExposureState;
-    alert("Render complete!");
+  if (!status) {
+    return;
   }
+
+  // Pre-redraw to make sure view is set:
+  map.invalidateSize(true);
+
+  // TODO: lock interaction.
+
+  logRenderStep("Preparing render");
+
+  // Turn off auto-exposure:
+  const preRenderAutoExposureState = gui.autoexpose;
+  gui.autoexpose = false;
+  const widthPerCell = scene.canvas.width / zoomFactor;
+  const heightPerCell = scene.canvas.height / zoomFactor;
+
+  // Cache all the bounding box points before moving the map for each render.
+  const cells = [];
+  for (let i = 0; i < zoomRender; i++) {
+    for (let j = 0; j < zoomRender; j++) {
+      // Get a bounding box of the Points using northwest and southeast:
+      const nwPoint = L.point(i * widthPerCell, j * heightPerCell, false);
+      const sePoint = L.point(nwPoint.x + widthPerCell, nwPoint.y + heightPerCell, false);
+      // Use the map container and not layer PointToLatLng for the most current position.
+      const topLeftCoords = map.containerPointToLatLng(nwPoint);
+      const bottomRightCoords = map.containerPointToLatLng(sePoint);
+      // Coordinate bounding box of where we want to be:
+      const bounds = L.latLngBounds(topLeftCoords, bottomRightCoords);
+      cells.push(bounds);
+    }
+  }
+
+  logRenderStep("Rendering cells");
+
+  // Render each cell starting from the specified startCell:
+  let count = startCell;
+  for (let i = startCell; i < cells.length; i++) {
+    const bounds = cells[i];
+    // wait for Leaflet moveend + zoomend events
+    await async function () {
+      return new Promise(resolve => {
+        map.once('moveend zoomend', resolve);
+        map.fitBounds(bounds);
+      });
+    }();
+    await awaitViewComplete().then(async () => {
+      // Cache the screenshot
+      const renderedCell = await scene.screenshot();
+      // Save each cell with a unique name or identifier
+      saveAs(renderedCell.blob, `rendered_cell_${count}.png`);
+      console.log(`Cell ${count} rendered and saved`);
+      count++;
+
+      // Introduce a 10-second break
+      await waitForSeconds(10);
+    });
+  }
+
+  // Clean up:
+  logRenderStep("Cleaning up");
+  gui.autoexpose = preRenderAutoExposureState;
+  alert("Render complete!");
+
+  // Zoom out to the original view
+  map.fitBounds(originalBounds);
+}
+
+//NEWCODE
+  function stop() {
+    console.log('stopping')
+    stopped = true;
+    console.log('stopping:', stopped);
+    map.fitBounds(originalBounds); // Zoom out to original bounds when stopping
+  }
+//NEWCODE
   
   function waitForSeconds(seconds) {
     return new Promise((resolve, reject) => {
