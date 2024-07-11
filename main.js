@@ -1,3 +1,4 @@
+//saving cells instead of merging cells. and Zoom level to 100
 /*jslint browser: true*/
 /*global Tangram, gui */
 
@@ -31,7 +32,6 @@ map = (function () {
 
   //NEWCODE
   // Move this declaration to a higher scope, outside of any function
-  var startCell = 0;
   var originalBounds;
   //NEWCODE
   
@@ -337,16 +337,11 @@ map = (function () {
     gui.add(gui, 'export');
     
     gui.zoomRender = zoomRender;
-    gui.add(gui, 'zoomRender', min_zoomRender, max_zoomRender, 1).name("Render Multiplier2").onChange(function(value) {
+    gui.add(gui, 'zoomRender', min_zoomRender, max_zoomRender, 1).name("Render Multiplier").onChange(function(value) {
       zoomRender = Math.round(value);
+      
     });
-
-    // Add this code inside the addGUI function to add the input text box for start cell
-    gui.startCell = startCell;
-    gui.add(gui, 'startCell').name("Start Cell").onChange(function(value) {
-      startCell = value;
-    });
-
+    
     gui.renderName = renderName.name;
     let rendernameInput = gui.add(gui, 'renderName').name('Render Name').onChange(function(value) {
       renderName.name = value;
@@ -359,6 +354,8 @@ map = (function () {
     
     gui.add(gui, 'render');
     
+    
+    
     gui.help = function () {
       // show help screen and input blocker
       toggleHelp(true);
@@ -366,7 +363,7 @@ map = (function () {
     gui.add(gui, 'help');
     // set scale factor text field to be uneditable but still selectable (for copying)
     gui.__controllers[2].domElement.firstChild.setAttribute("readonly", true);
-
+    
   }
   function stop() {
     console.log('stopping')
@@ -379,7 +376,6 @@ map = (function () {
   }
 
 //NEWCODE  
-// Update the renderView function to start rendering from the specified cell
 async function renderView() {
   // Store original bounds to return post render.
   originalBounds = map.getBounds();
@@ -424,10 +420,9 @@ async function renderView() {
 
   logRenderStep("Rendering cells");
 
-  // Render each cell starting from the specified startCell:
-  let count = startCell;
-  for (let i = startCell; i < cells.length; i++) {
-    const bounds = cells[i];
+  // Render each cell:
+  let count = 0;
+  for (const bounds of cells) {
     // wait for Leaflet moveend + zoomend events
     await async function () {
       return new Promise(resolve => {
