@@ -25,9 +25,15 @@ map = (function () {
   const mb_factor = 1.0 / (1024 * 1024);
   var zoomRender = 2;
   const min_zoomRender = 1;
-  const max_zoomRender = 8; // if you need more, fork this repo and use your own api key!
+  const max_zoomRender = 100; // Tiles 100x100 if you need more, fork this repo and use your own api key!
   
   var renderName = {name: 'render'};
+
+  //NEWCODE
+  // Move this declaration to a higher scope, outside of any function
+  var startCell = 0;
+  var originalBounds;
+  //NEWCODE
   
   /*** URL parsing ***/
   
@@ -333,7 +339,12 @@ map = (function () {
     gui.zoomRender = zoomRender;
     gui.add(gui, 'zoomRender', min_zoomRender, max_zoomRender, 1).name("Render Multiplier").onChange(function(value) {
       zoomRender = Math.round(value);
-      
+    });
+
+    //NEW CODE Add this code inside the addGUI function to add the input text box for start cell
+    gui.startCell = startCell;
+    gui.add(gui, 'startCell').name("Start Cell").onChange(function(value) {
+      startCell = value;
     });
     
     gui.renderName = renderName.name;
