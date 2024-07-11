@@ -149,47 +149,5 @@
     <!-- Demo module -->
     <script src="main.js"></script>
 
-    <script>
-    // Initialize the Tangram map
-    var scene = Tangram.leafletLayer({
-      scene: 'scene.yaml',
-      attribution: '<a href="https://maps.google.com">Google Maps</a>'
-    });
-
-    // Initialize the Leaflet map
-    var map = L.map('map', {
-      center: [0.0, 0.0], // Example coordinates (San Francisco)
-      zoom: 2,
-      layers: [scene]
-    });
-
-    // Create a satellite layer
-    var satelliteLayer = Tangram.leafletLayer({
-      scene: {
-        import: 'scene.yaml',
-        sources: {
-          google_maps: {
-            type: 'Raster',
-            url: 'https://maps.googleapis.com/maps/api/staticmap?center=0.0,0.0&zoom=2&maptype=roadmap&key=AIzaSyApiAENSFznjVVq5eD5DxOhBlwI4uvNddo',
-            tile_size: 256
-          }
-        }
-      },
-      attribution: '<a href="https://maps.google.com">Google Maps</a>'
-    });
-
-    // Handle the checkbox toggle
-    document.getElementById('satellite-toggle').addEventListener('change', function (e) {
-      if (e.target.checked) {
-        map.addLayer(satelliteLayer);
-      } else {
-        map.removeLayer(satelliteLayer);
-      }
-    });
-
-    // Add the satellite layer by default
-    map.addLayer(satelliteLayer);
-  </script>
-
   </body>
 </html>
